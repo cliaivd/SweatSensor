@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全能自适应智能补水决策系统 Pro (黄金自测版)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+<div class="max-w-7xl mx-auto">
+<header class="mb-8 border-b border-slate-800 pb-6">
+<h1 class="text-3xl font-extrabold text-emerald-400">💧 全能自适应智能补水决策系统</h1>
+<p class="text-slate-400 mt-2 text-sm">多维动态生理模型与实体补给换算系统。</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+<!-- 参数控制面板 -->
+<div class="lg:col-span-5 bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-6">
+
+<!-- 基础参数组 -->
+<div class="space-y-4">
+<h2 class="text-lg font-bold text-slate-200">🛠️ 个人生理与运动参数</h2>
+
+<div>
+<label class="block text-xs font-bold text-slate-200 mb-1">⚽ 运动项目</label>
+<select id="sportType" class="w-full bg-slate-800 rounded-xl px-3 py-2 text-sm">
+<option value="running">🏃 跑步</option>
+<option value="cycling">🚴 骑行</option>
+<option value="ball_games">🏀 球类运动</option>
+</select>
+</div>
+
+<div>
+<label class="block text-xs font-bold text-amber-400 mb-1">🔥 运动强度 (RPE)</label>
+<select id="intensity" class="w-full bg-slate-800 rounded-xl px-3 py-2 text-sm">
+<option value="low">🌱 低强度</option>
+<option value="normal" selected>⚡ 中强度</option>
+<option value="high">🚀 高强度</option>
+</select>
+</div>
+</div>
+
+<!-- 黄金自测模块 (恢复原位) -->
+<div class="border-t border-slate-800 pt-4">
+<div class="flex items-center justify-between mb-2">
+<label class="text-xs font-bold text-amber-400">🧬 启用黄金自测反馈 (精准校准)</label>
+<input type="checkbox" id="enableSelfTest" class="w-4 h-4 accent-amber-400">
+</div>
+<div id="selfTestInputs" class="hidden space-y-3 bg-slate-950 p-4 rounded-xl border border-amber-500/20">
+<div class="grid grid-cols-2 gap-2">
+<input type="number" id="preWeight" placeholder="前体重(kg)" class="w-full bg-slate-800 rounded p-1 text-xs">
+<input type="number" id="postWeight" placeholder="后体重(kg)" class="w-full bg-slate-800 rounded p-1 text-xs">
+</div>
+<input type="number" id="duringDrinkActual" placeholder="期间实际饮水量(ml)" class="w-full bg-slate-800 rounded p-1 text-xs">
+</div>
+</div>
+
+</div>
+
+<!-- 结果展示区 -->
+<div class="lg:col-span-7 space-y-6">
+<div class="grid grid-cols-3 gap-4 bg-slate-900 rounded-2xl p-6 border border-slate-800 text-center">
+<div><p class="text-[10px] text-slate-500 uppercase">排汗率</p><p id="resSweatRate" class="text-xl font-black text-emerald-400">--</p></div>
+<div><p class="text-[10px] text-slate-500 uppercase">总出汗量</p><p id="resTotalSweat" class="text-xl font-black text-amber-400">--</p></div>
+<div><p class="text-[10px] text-slate-500 uppercase">总流盐量</p><p id="resTotalSalt" class="text-xl font-black text-red-400">--</p></div>
+</div>
+<div id="outputArea" class="space-y-4 text-xs">
+<!-- 动态补给方案 -->
+<div class="p-4 bg-slate-900 rounded-xl border-l-4 border-emerald-500">
+<h3 class="font-bold mb-2">阶段 2：运动中补给方案</h3>
+<div id="duringPhysical" class="space-y-1"></div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<script>
+const elements = {
+enableSelfTest: document.getElementById('enableSelfTest'),
+selfTestInputs: document.getElementById('selfTestInputs'),
+sportType: document.getElementById('sportType'),
+intensity: document.getElementById('intensity'),
+preWeight: document.getElementById('preWeight'),
+postWeight: document.getElementById('postWeight'),
+duringDrinkActual: document.getElementById('duringDrinkActual'),
+resSweatRate: document.getElementById('resSweatRate'),
+resTotalSweat: document.getElementById('resTotalSweat'),
+resTotalSalt: document.getElementById('resTotalSalt'),
+duringPhysical: document.getElementById('duringPhysical'),
+outputArea: document.getElementById('outputArea')
+};
+
+elements.enableSelfTest.addEventListener('change', (e) => {
+elements.selfTestInputs.classList.toggle('hidden', !e.target.checked);
+updateHydration();
+});
+
+function updateHydration() {
+const sport = elements.sportType.value;
+const intensity = elements.intensity.value;
+
+let sweatRateH = 0;
+let totalSweat = 0;
+let totalSalt = 0;
+
+if (elements.enableSelfTest.checked) {
+const preW = parseFloat(elements.preWeight.value) || 70;
+const postW = parseFloat(elements.postWeight.value) || 69.2;
+const actualDrink = parseFloat(elements.duringDrinkActual.value) || 300;
+const dur = 1.0;
+const actualSweat = ((preW - postW) * 1000.0) + actualDrink;
+sweatRateH = Math.max(100, actualSweat / dur);
+totalSweat = sweatRateH * dur;
+totalSalt = (totalSweat / 1000.0) * 2.3;
+} else {
+const sportMet = { running: 10.0, cycling: 8.0, ball_games: 8.0 };
+const intensityMult = { low: 0.7, normal: 1.0, high: 1.25 };
+const weight = 70;
+const temp = 25;
+const baseRate = weight * (sportMet[sport] || 8.0) * 0.9;
+const tempMod = 1.0 + (Math.max(0.0, temp - 22.0) * 0.06);
+const intMod = intensityMult[intensity] || 1.0;
+sweatRateH = baseRate * tempMod * intMod;
+totalSweat = sweatRateH * 1.0;
+totalSalt = (totalSweat / 1000.0) * 2.3;
+}
+
+elements.resSweatRate.textContent = `${Math.round(sweatRateH)} ml/h`;
+elements.resTotalSweat.textContent = `${Math.round(totalSweat)} ml`;
+elements.resTotalSalt.textContent = `${totalSalt.toFixed(1)} g`;
+
+// 运动中补给换算
+const maxGastric = 600;
+const duringWater = Math.min(totalSweat - 250, maxGastric);
+const duringSaltVal = totalSweat > 1000 ? totalSalt * 0.6 : 0;
+const duringSugarVal = totalSweat > 1000 ? duringWater * 0.03 : 0;
+
+const bottlesByWater = duringWater / 500;
+const bottlesBySugar = duringSugarVal / 30;
+const recBottles = Math.max(0, Math.round(Math.min(bottlesByWater, bottlesBySugar) * 2) / 2);
+
+const covWater = recBottles * 500;
+const covSalt = recBottles * 0.6;
+const covSugar = recBottles * 30;
+
+const remWater = Math.max(0, duringWater - covWater);
+const remSalt = Math.max(0, duringSaltVal - covSalt);
+const remSugar = Math.max(0, duringSugarVal - covSugar);
+
+let html = "";
+if (recBottles > 0) html += `<div>🥤 运动饮料: <span class="text-emerald-400">${recBottles} 瓶</span></div>`;
+if (remWater > 0) html += `<div>🥛 补充纯水: <span class="text-sky-400">${Math.round(remWater)} ml</span></div>`;
+if (remSalt > 0) html += `<div>💊 盐丸: <span class="text-amber-400">${Math.ceil(remSalt / 0.5)} 粒</span></div>`;
+if (remSugar > 0) html += `<div>⚡ 能量胶: <span class="text-yellow-500">${Math.ceil(remSugar / 25)} 支</span></div>`;
+if (!html) html = `<div>🥛 补充纯水 ${Math.round(duringWater)}ml 即可</div>`;
+
+elements.duringPhysical.innerHTML = html;
+}
+
+const inputs = [elements.sportType, elements.intensity, elements.preWeight, elements.postWeight, elements.duringDrinkActual];
+inputs.forEach(i => i.addEventListener('input', updateHydration));
+updateHydration();
+</script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全能运动补水决策系统 · 旗舰版</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+.card { background: #0f172a; border: 1px solid #1e293b; padding: 1.5rem; border-radius: 1rem; }
+.label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
+.value { font-weight: 800; color: #34d399; }
+.preset-btn { transition: all 0.15s; }
+.preset-btn:hover { background: #1e293b; border-color: #34d399; }
+[data-tooltip]:hover::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: calc(100% + 4px);
+left: 50%; transform: translateX(-50%);
+background: #1e293b;
+color: #cbd5e1;
+font-size: 0.7rem;
+padding: 4px 8px;
+border-radius: 6px;
+white-space: nowrap;
+z-index: 10;
+border: 1px solid #334155;
+pointer-events: none;
+}
+</style>
+</head>
+<body class="bg-slate-950 text-slate-200 p-4 md:p-8">
+<div class="max-w-7xl mx-auto">
+<h1 class="text-3xl font-extrabold text-emerald-400 mb-1">💧 全能运动补水决策系统 · 旗舰版</h1>
+<p class="text-slate-500 text-sm mb-4">热平衡物理模型 · 个体参数校验 · 全方位运动补水决策</p>
+
+<!-- 预设场景按钮 -->
+<div class="flex flex-wrap gap-2 mb-6">
+<button onclick="applyPreset('summer_5k')" class="preset-btn text-xs bg-slate-800 border border-slate-700 rounded-full px-4 py-1.5 text-slate-300">🏃 夏日晨跑 5k</button>
+<button onclick="applyPreset('marathon')" class="preset-btn text-xs bg-slate-800 border border-slate-700 rounded-full px-4 py-1.5 text-slate-300">☀️ 三伏天马拉松</button>
+<button onclick="applyPreset('cycling_100k')" class="preset-btn text-xs bg-slate-800 border border-slate-700 rounded-full px-4 py-1.5 text-slate-300">🚴 周末百公里骑行</button>
+<button onclick="applyPreset('gym')" class="preset-btn text-xs bg-slate-800 border border-slate-700 rounded-full px-4 py-1.5 text-slate-300">🏋️ 健身房增肌</button>
+<button onclick="applyPreset('hiking')" class="preset-btn text-xs bg-slate-800 border border-slate-700 rounded-full px-4 py-1.5 text-slate-300">🥾 周末徒步 2h</button>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+<!-- 左侧参数面板 -->
+<div class="lg:col-span-4 space-y-4">
+<div class="card">
+<h2 class="font-bold text-amber-400 mb-4">🛠️ 运动参数设置</h2>
+
+<div class="grid grid-cols-2 gap-2 mb-3">
+  <div>
+    <label class="label">体重 (kg)</label>
+    <input id="weight" type="number" value="70" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm">
+  </div>
+  <div>
+    <label class="label">时长 (小时)</label>
+    <input id="duration" type="number" step="0.5" value="1" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm">
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-2 mb-3">
+  <div>
+    <label class="label">温度 (°C)</label>
+    <input id="temp" type="number" value="30" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm">
+  </div>
+  <div>
+    <label class="label">湿度 (%)</label>
+    <input id="humidity" type="number" value="80" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm">
+  </div>
+</div>
+
+<label class="label">运动类型</label>
+<select id="sport" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm mb-3">
+<option value="running">🏃 跑步 (10 MET)</option>
+<option value="cycling">🚴 骑行 (8 MET)</option>
+<option value="ball">🏀 球类运动 (8 MET)</option>
+<option value="strength">🏋️ 力量训练 (4 MET)</option>
+<option value="hiking">🥾 徒步快走 (5 MET)</option>
+</select>
+
+<label class="label">运动强度</label>
+<select id="intensity" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm mb-3">
+<option value="low">🌱 低强度</option>
+<option value="normal" selected>⚡ 中强度</option>
+<option value="high">🚀 高强度</option>
+<option value="extreme">💀 极高强度</option>
+</select>
+
+<label class="label">出汗类型</label>
+<select id="sweatType" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm mb-3">
+<option value="salty">🧂 咸汗型 (高钠)</option>
+<option value="normal" selected>💧 平衡型</option>
+<option value="sweet">🧪 淡汗型 (低钠)</option>
+</select>
+
+<div class="grid grid-cols-2 gap-2 mb-3">
+  <div>
+    <label class="label">年龄</label>
+    <input id="age" type="number" value="30" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm">
+  </div>
+  <div>
+    <label class="label">性别</label>
+    <select id="gender" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm"><option value="male">男</option><option value="female">女</option></select>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-2 mb-3">
+  <div>
+    <label class="label">体能水平</label>
+    <select id="fitness" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm"><option value="low">初学者</option><option value="normal" selected>普通爱好</option><option value="elite">精英选手</option></select>
+  </div>
+  <div class="flex items-end pb-2">
+    <label class="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" id="acclimated" class="accent-emerald-400"> 已热驯化</label>
+  </div>
+</div>
+
+<label class="label">水合状态</label>
+<select id="hydrationStatus" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm mb-3">
+<option value="well_hydrated">🥤 已足量补水</option>
+<option value="moderate" selected>💧 中等补水</option>
+<option value="dehydrated">⚠️ 轻度脱水</option>
+</select>
+
+<div class="border-t border-slate-700 pt-4">
+<label class="flex items-center gap-2 font-bold text-amber-400 text-sm">
+<input type="checkbox" id="useSelfTest" class="accent-amber-400"> 🧬 黄金自测模式
+</label>
+<p class="text-[10px] text-slate-500 mt-1">运动前/后称重，反推真实排汗率</p>
+<div id="selfTestFields" class="hidden mt-2 grid grid-cols-2 gap-2">
+<input id="preW" placeholder="跑前体重(kg)" class="bg-slate-800 border border-amber-500/20 rounded p-2 text-xs">
+<input id="postW" placeholder="跑后体重(kg)" class="bg-slate-800 border border-amber-500/20 rounded p-2 text-xs">
+<input id="drink" placeholder="期间实际饮水(ml)" class="col-span-2 bg-slate-800 border border-amber-500/20 rounded p-2 text-xs">
+</div>
+</div>
+</div>
+</div>
+
+<!-- 右侧展示面板 -->
+<div class="lg:col-span-8 space-y-6">
+
+<!-- 结果卡片 -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="card text-center"><p class="label">预测排汗率</p><p id="vSweat" class="text-2xl font-black text-emerald-400">-- <span class="text-xs font-normal">ml/h</span></p><p id="vSweatRange" class="text-[10px] text-slate-500 mt-0.5">合理范围：-- ~ --</p></div>
+<div class="card text-center"><p class="label">预计总出汗量</p><p id="vTotal" class="text-2xl font-black text-amber-400">-- <span class="text-xs font-normal">ml</span></p></div>
+<div class="card text-center"><p class="label">预计总流失盐量</p><p id="vSalt" class="text-2xl font-black text-red-400">-- <span class="text-xs font-normal">g</span></p></div>
+<div class="card text-center"><p class="label">热指数 (HI)</p><p id="vHI" class="text-2xl font-black text-purple-400">-- <span class="text-xs font-normal">°C</span></p><p id="vHILevel" class="text-[10px] mt-0.5">--</p></div>
+</div>
+
+<!-- 物理参数 -->
+<div id="thermalParams" class="grid grid-cols-4 gap-4">
+<div class="card text-center relative" data-tooltip="代谢产热 = MET × 体重 × 3.5 ÷ 200 × 时间 × 60 × 0.8"><p class="label">代谢产热 M</p><p id="valM" class="value text-emerald-300">--</p></div>
+<div class="card text-center relative" data-tooltip="体内蓄热 = 体重 × 0.83 × 温升因子"><p class="label">体内蓄热 S</p><p id="valS" class="value text-amber-300">--</p></div>
+<div class="card text-center relative" data-tooltip="呼吸散热 Eres"><p class="label">呼吸散热 Eres</p><p id="valEres" class="value text-sky-300">--</p></div>
+<div class="card text-center relative" data-tooltip="蒸发效率 = 1.0 - 0.005×RH - 0.008×max(0, T-20)"><p class="label">蒸发效率 Reff</p><p id="valReff" class="value text-purple-300">--</p></div>
+</div>
+
+<!-- 三阶段方案 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="card border-l-4 border-sky-500">
+<h3 class="font-bold text-sky-400 text-base mb-1">阶段 1 · 跑前充盈</h3>
+<p class="text-[10px] text-slate-500 mb-2">提前 2 小时分次喝完</p>
+<div class="space-y-1 text-xs">
+<div>💧 补水：<span id="preWater" class="text-sky-300 font-bold">--</span></div>
+<div>🧂 食盐：<span id="preSalt" class="text-amber-300 font-bold">--</span></div>
+<div class="text-amber-400 font-semibold mt-1">🛒 <span id="prePhysical">--</span></div>
+</div>
+</div>
+<div class="card border-l-4 border-emerald-500">
+<h3 class="font-bold text-emerald-400 text-base mb-1">阶段 2 · 跑中对冲</h3>
+<p class="text-[10px] text-slate-500 mb-2">每 15 分钟小口抿饮</p>
+<div class="space-y-1 text-xs">
+<div>💧 补水：<span id="duringWater" class="text-emerald-300 font-bold">--</span></div>
+<div>🧂 食盐：<span id="duringSalt" class="text-amber-300 font-bold">--</span></div>
+<div>🍬 糖分：<span id="duringSugar" class="text-yellow-300 font-bold">--</span></div>
+<div class="text-amber-400 font-semibold mt-1">🛒 <span id="duringPhysical">--</span></div>
+</div>
+</div>
+<div class="card border-l-4 border-fuchsia-500">
+<h3 class="font-bold text-fuchsia-400 text-base mb-1">阶段 3 · 跑后重建</h3>
+<p class="text-[10px] text-slate-500 mb-2">运动后 2 小时内分次饮毕</p>
+<div class="space-y-1 text-xs">
+<div>💧 补水：<span id="postWater" class="text-fuchsia-300 font-bold">--</span></div>
+<div>🧂 食盐：<span id="postSalt" class="text-amber-300 font-bold">--</span></div>
+<div class="text-amber-400 font-semibold mt-1">🛒 <span id="postPhysical">--</span></div>
+</div>
+</div>
+</div>
+
+<!-- 安全提示 -->
+<div class="card space-y-2">
+<h4 class="font-bold text-amber-400 text-sm">⚠️ 安全评估</h4>
+<p id="safetyText" class="text-xs text-slate-300">--</p>
+<p id="sportText" class="text-xs text-emerald-400 bg-emerald-950/20 p-2 rounded border border-emerald-500/10">--</p>
+<p id="sweatTypeText" class="text-xs text-rose-400 bg-rose-950/20 p-2 rounded border border-rose-500/10">--</p>
+</div>
+
+<div class="text-[10px] text-slate-600 text-center mt-2">⚠️ 本工具仅供参考，不构成医疗建议</div>
+
+</div>
+</div>
+</div>
+
+<script>
+const sportDB = {
+running:{name:"跑步",met:10,desc:"全身性持续有氧，对心肺和水分储备要求最高。"},
+cycling:{name:"骑行",met:8,desc:"骑行迎风大，汗液蒸发极快，属于无感脱水高发区。"},
+ball:{name:"球类",met:8,desc:"频繁冲刺与骤停的无氧间歇模式，可在死球阶段集中补充。"},
+strength:{name:"力量训练",met:4,desc:"无氧抗阻，排汗相对温和。组间休息少量抿饮即可。"},
+hiking:{name:"徒步/快走",met:5,desc:"长线中等强度持续性运动，建议匀速小口低频饮用。"}
+};
+const sweatDB = {
+salty:{name:"咸汗型",mod:1.6,desc:"电解质流失高危人群，极易抽筋。已上调 60% 盐分配比。"},
+normal:{name:"平衡型",mod:1.0,desc:"标准电解质流失，按 2.3g/升 配盐。"},
+sweet:{name:"淡汗型",mod:0.5,desc:"天然保盐体质，已削减 50% 盐分摄入。"}
+};
+const intensityMods={low:0.7,normal:1.0,high:1.25,extreme:1.5};
+const fitnessMods={low:0.85,normal:1.0,elite:1.15};
+const hydMods={well_hydrated:1.0,moderate:0.95,dehydrated:0.80};
+const presets = {
+summer_5k:{sport:'running',intensity:'normal',sweatType:'normal',weight:70,age:30,gender:'male',duration:0.75,temp:28,humidity:70,fitness:'normal',acclimated:false,hydrationStatus:'moderate'},
+marathon:{sport:'running',intensity:'high',sweatType:'salty',weight:65,age:35,gender:'male',duration:4,temp:32,humidity:80,fitness:'elite',acclimated:true,hydrationStatus:'well_hydrated'},
+cycling_100k:{sport:'cycling',intensity:'normal',sweatType:'normal',weight:72,age:32,gender:'male',duration:3.5,temp:28,humidity:50,fitness:'elite',acclimated:false,hydrationStatus:'moderate'},
+gym:{sport:'strength',intensity:'high',sweatType:'normal',weight:75,age:28,gender:'male',duration:1.5,temp:24,humidity:40,fitness:'normal',acclimated:false,hydrationStatus:'well_hydrated'},
+hiking:{sport:'hiking',intensity:'low',sweatType:'sweet',weight:68,age:30,gender:'female',duration:2,temp:22,humidity:55,fitness:'normal',acclimated:false,hydrationStatus:'well_hydrated'}
+};
+
+function $(id){return document.getElementById(id);}
+
+function applyPreset(key){
+const p=presets[key];if(!p)return;
+$('sport').value=p.sport;$('intensity').value=p.intensity;$('sweatType').value=p.sweatType;
+$('weight').value=p.weight;$('age').value=p.age;$('gender').value=p.gender;
+$('duration').value=p.duration;$('temp').value=p.temp;$('humidity').value=p.humidity;
+$('fitness').value=p.fitness;$('acclimated').checked=p.acclimated;
+$('hydrationStatus').value=p.hydrationStatus;
+calc();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function calcHeatIndex(T,RH){
+if(T<26)return T;
+const c1=-8.78,c2=1.611,c3=2.3385,c4=-0.1461,c5=-0.01231,c6=-0.01642,c7=0.002212,c8=0.0007255,c9=-0.00000358;
+return c1+c2*T+c3*RH+c4*T*RH+c5*T*T+c6*RH*RH+c7*T*T*RH+c8*T*RH*RH+c9*T*T*RH*RH;
+}
+
+function calc(){
+const sportKey=$('sport').value,intensityKey=$('intensity').value,sweatKey=$('sweatType').value;
+const weight=parseFloat($('weight').value)||70,age=parseInt($('age').value)||30;
+const gender=$('gender').value,duration=parseFloat($('duration').value)||1;
+const temp=parseFloat($('temp').value)||30,humidity=parseFloat($('humidity').value)||80;
+const fitnessKey=$('fitness').value,acclimated=$('acclimated').checked;
+const useSelf=$('useSelfTest').checked;
+const sportInfo=sportDB[sportKey],sweatInfo=sweatDB[sweatKey];
+
+// 热指数
+const HI=calcHeatIndex(temp,humidity);
+
+if(useSelf){
+const preW=parseFloat($('preW').value)||70,postW=parseFloat($('postW').value)||69;
+const actualDrink=parseFloat($('drink').value)||500;
+const sweatRateH=Math.max(100,((preW-postW)*1000+actualDrink)/duration);
+render(sweatRateH,sportInfo,sweatInfo,weight,age,gender,duration,temp,humidity,fitnessKey,acclimated,HI,true);
+return;
+}
+
+// 热平衡模型
+const M_total = sportInfo.met * weight * duration * 3.5 / 200 * 60 * 0.8;
+const sFactor = Math.min(1, duration / 0.5);
+const S = weight * 0.83 * 0.22 * sFactor;
+const eresFactor = 1.0 - Math.min(0.08, Math.max(0.03, humidity * 0.0008 + Math.max(0, temp - 20) * 0.002));
+const Eres = duration * 293.7 * eresFactor;
+const Reff = Math.max(35, Math.min(95, (1.0 - 0.005 * humidity - 0.008 * Math.max(0, temp - 20)) * 100));
+const sweatThermal = Math.max(100, (M_total - S - Eres) / (Reff / 100) * 0.58);
+
+// 热身排序
+const heatSort =
+HI < 26 ? 1.0 :
+HI < 32 ? 1.0 + (HI - 26) / 30 :
+HI < 40 ? 1.2 + (HI - 32) / 20 :
+Math.min(1.8, 1.6 + (HI - 40) / 50);
+
+const ageMod = age > 45 ? Math.max(0.75, 1.0 - (age - 45) * 0.008) : 1.0;
+const fitMod = fitnessMods[fitnessKey] || 1.0;
+const intMod = intensityMods[intensityKey] || 1.0;
+const hydMod = hydMods[$('hydrationStatus').value] || 1.0;
+const acclMod = acclimated ? 0.85 : 1.0;
+
+const baseRate = 500 + (weight - 50) * 5;
+const metMod = sportInfo.met / 8.0;
+let raw = baseRate * metMod * ageMod * fitMod * heatSort * intMod * hydMod * acclMod;
+const maxSweat = 2500;
+const dynamicMax = Math.min(3000, maxSweat * (1 + Math.max(0, (HI - 30) / 50)));
+const sweatPortrait = Math.max(200, Math.min(dynamicMax, raw));
+
+// 综合结果（取两个引擎中值为最终排汗率）
+const finalRate = Math.round((sweatThermal + sweatPortrait) / 2);
+
+render(finalRate,sportInfo,sweatInfo,weight,age,gender,duration,temp,humidity,fitnessKey,acclimated,HI,false,{M_total,S,Eres,Reff,sweatThermal,sweatPortrait});
+}
+
+function render(sweatRateH,sportInfo,sweatInfo,weight,age,gender,duration,temp,humidity,fitnessKey,acclimated,HI,fromSelfTest,extra){
+const totalSweat = sweatRateH * duration;
+$('vSweat').innerHTML=`${Math.round(sweatRateH)} <span class="text-xs font-normal">ml/h</span>`;
+$('vSweatRange').innerText=`合理范围：${Math.round(sweatRateH*0.85)} ~ ${Math.round(sweatRateH*1.15)} ml/h`;
+$('vTotal').innerHTML=`${Math.round(totalSweat)} <span class="text-xs font-normal">ml</span>`;
+
+// 热指数
+$('vHI').innerHTML=`${Math.round(HI)} <span class="text-xs font-normal">°C</span>`;
+if(HI<27)$('vHILevel').innerText='✅ 舒适';
+else if(HI<32)$('vHILevel').innerText='⚠️ 注意：长时间活动可能疲劳';
+else if(HI<41)$('vHILevel').innerText='⚠️⚠️ 警惕：热痉挛和热衰竭可能';
+else if(HI<54)$('vHILevel').innerText='🚫 危险：热射病风险高';
+else $('vHILevel').innerText='💀 极度危险：中暑即发';
+
+if(!fromSelfTest && extra){
+$('valM').innerText=Math.round(extra.M_total)+' kcal';
+$('valS').innerText=extra.S.toFixed(0)+' kcal';
+$('valEres').innerText=extra.Eres.toFixed(0)+' kcal';
+$('valReff').innerText=extra.Reff+'%';
+}
+
+// 盐
+const saltMod=acclimated?0.65:1.0,genderMod=gender==='female'?0.9:1.0,sweatMod=sweatInfo.mod;
+const totalSalt=(totalSweat/1000)*2.3*saltMod*genderMod*sweatMod;
+$('vSalt').innerHTML=`${totalSalt.toFixed(1)} <span class="text-xs font-normal">g</span>`;
+
+// 三阶段
+const glycogenWater=duration*250;
+const netDeficit=Math.max(0,totalSweat-glycogenWater);
+const maxGastric=duration*600;
+let preWater=Math.ceil((weight*5.5)/50)*50;
+let duringWater=netDeficit>0?Math.min(netDeficit,maxGastric):duration*300;
+let postDeficit=Math.max(0,netDeficit-duringWater);
+let postWater=postDeficit>0?postDeficit*1.5:duration*150;
+preWater=Math.ceil(preWater/50)*50;duringWater=Math.ceil(duringWater/50)*50;postWater=Math.ceil(postWater/50)*50;
+
+let preSalt=totalSweat>2000?(preWater/1000)*2.0*sweatMod:0;
+let duringSalt=totalSweat>1000?totalSalt*0.6:0;
+let duringSugar=totalSweat>1000?duringWater*0.03:0;
+let postSalt=totalSweat>1000?totalSalt*0.3:0;
+
+$('preWater').innerText=`${preWater} ml`;$('preSalt').innerText=`${preSalt.toFixed(1)} g`;
+$('prePhysical').innerHTML=preSalt>0?`🥛 纯水${preWater}ml+盐丸${Math.max(1,Math.round(preSalt/0.5))}粒`:`🥛 纯水${preWater}ml即可`;
+$('duringWater').innerText=`${duringWater} ml`;$('duringSalt').innerText=`${duringSalt.toFixed(1)} g`;$('duringSugar').innerText=`${Math.round(duringSugar)} g`;
+if(totalSweat>1000){
+const rb=Math.round(Math.min(duringWater/500,duringSugar/30)*2)/2;
+const rw=Math.max(0,duringWater-rb*500),rs=Math.max(0,duringSalt-rb*0.6),rg=Math.max(0,duringSugar-rb*30);
+let h='';if(rb>0)h+=`🥤 运动饮料${rb}瓶`;if(rw>0)h+=` + 纯水${Math.round(rw)}ml`;if(rs>0)h+=` + 盐丸${Math.ceil(rs/0.5)}粒`;if(rg>0)h+=` + 能量胶${Math.ceil(rg/25)}支`;
+$('duringPhysical').innerHTML=h||`🥛 纯水${duringWater}ml少量多次`;
+}else $('duringPhysical').innerHTML=`🥛 纯水${duringWater}ml少量多次`;
+$('postWater').innerText=`${postWater} ml`;$('postSalt').innerText=`${postSalt.toFixed(1)} g`;
+$('postPhysical').innerHTML=postSalt>0?`🥛 纯水${postWater}ml+盐丸${Math.max(1,Math.round(postSalt/0.5))}粒`:`🥛 纯水${postWater}ml配合日常进食`;
+
+// 安全提示
+if(duringWater>=maxGastric)$('safetyText').innerHTML=`⚠️ 胃部警告：跑中已达吸收上限（${Math.round(maxGastric)}ml），剩余缺口已移至跑后。`;
+else $('safetyText').innerHTML=`🟢 胃部安全：每小时约${Math.round(duringWater/duration)}ml，在小肠安全吸收阈值内。`;
+const humWarn=humidity>70?' 注意：当前湿度极高，无效排汗加剧。':'';
+const hydWarn=$('hydrationStatus').value==='dehydrated'?' ⚠️ 轻度脱水状态，运动前务必充分补水，警惕热痉挛。':'';
+$('sportText').innerHTML=`<strong>${sportInfo.name}指导：</strong>${sportInfo.desc}${humWarn}${hydWarn}`;
+$('sweatTypeText').innerHTML=`<strong>汗液评级：${sweatInfo.name}</strong> — ${sweatInfo.desc}`;
+}
+
+// 事件绑定
+['sport','intensity','sweatType','weight','age','gender','duration','temp','humidity','fitness','acclimated','hydrationStatus','useSelfTest','preW','postW','drink'].forEach(id=>{
+const el=$(id);
+if(el)el.addEventListener('input',()=>{$('selfTestFields').style.display=$('useSelfTest').checked?'block':'none';calc();});
+});
+$('selfTestFields').style.display='none';
+calc();
+</script>
+</body>
+</html>

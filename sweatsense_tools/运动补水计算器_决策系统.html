@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>智能运动补水决策系统 Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 p-6">
+<div class="max-w-4xl mx-auto space-y-6">
+<h1 class="text-2xl font-bold text-emerald-400">💧 智能运动补水决策系统</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+<!-- 参数面板 -->
+<div class="bg-slate-900 p-6 rounded-xl border border-slate-800 space-y-4">
+<h2 class="font-bold">参数设置</h2>
+<select id="sport" class="w-full bg-slate-800 p-2 rounded">
+<option value="running">🏃 跑步</option>
+<option value="cycling">🚴 骑行</option>
+</select>
+<select id="intensity" class="w-full bg-slate-800 p-2 rounded">
+<option value="normal">⚡ 中强度</option>
+<option value="high">🚀 高强度</option>
+</select>
+
+<!-- 黄金自测区域 -->
+<div class="border-t border-slate-800 pt-4">
+<label class="flex items-center gap-2 text-amber-400 font-bold">
+<input type="checkbox" id="useSelfTest" class="accent-amber-400"> 开启黄金自测反馈
+</label>
+<div id="selfTestFields" class="hidden grid grid-cols-2 gap-2 mt-2">
+<input type="number" id="preW" placeholder="前体重(kg)" class="bg-slate-800 p-1 rounded text-xs">
+<input type="number" id="postW" placeholder="后体重(kg)" class="bg-slate-800 p-1 rounded text-xs">
+<input type="number" id="drink" placeholder="饮水量(ml)" class="col-span-2 bg-slate-800 p-1 rounded text-xs">
+</div>
+</div>
+</div>
+
+<!-- 补给方案展示 -->
+<div class="bg-slate-900 p-6 rounded-xl border border-emerald-500/30">
+<h2 class="font-bold text-emerald-400">建议方案</h2>
+<div id="results" class="mt-4 space-y-2 text-sm">
+<p>总需补水: <span id="outWater">--</span></p>
+<p>建议物资: <span id="outPhysical" class="text-amber-300">--</span></p>
+</div>
+</div>
+
+</div>
+</div>
+<script>
+const calc = () => {
+const useSelf = document.getElementById('useSelfTest').checked;
+const duration = 1.0;
+let sweatRate = 0;
+if (useSelf) {
+const pre = parseFloat(document.getElementById('preW').value) || 70;
+const post = parseFloat(document.getElementById('postW').value) || 69;
+const drink = parseFloat(document.getElementById('drink').value) || 500;
+sweatRate = ((pre - post) * 1000 + drink) / duration;
+} else {
+sweatRate = 700;
+}
+const totalSalt = (sweatRate / 1000) * 2.3;
+const bottles = Math.floor(sweatRate / 500);
+const saltPills = Math.max(0, Math.ceil((totalSalt - (bottles * 0.6)) / 0.5));
+document.getElementById('outWater').innerText = `${Math.round(sweatRate)} ml/h`;
+document.getElementById('outPhysical').innerText = `${bottles} 瓶运动饮料 + ${saltPills} 粒盐丸`;
+};
+[...document.querySelectorAll('input, select')].forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+</body>
+</html>
